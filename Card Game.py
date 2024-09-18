@@ -15,17 +15,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
-IMAGE = pygame.image.load('AceHearts.png').convert_alpha()
+Ace_Hearts = pygame.transform.scale(pygame.image.load('AceHearts.png').convert_alpha(), (50, 50))
+Ace_Clubs = pygame.transform.scale(pygame.image.load('AceClubs.png').convert_alpha(), (50, 50))
 
-'''
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, image):
-        super().__init__()
-        self.image = image
-        self.rect = self.image.get_rect(center=pos)
-
-player1 = Player((100, 300), IMAGE)
-'''
 
 
 # Create a clock object to standardize framerate
@@ -46,10 +38,9 @@ while True:
     # Set max game framerate
     gameClock.tick(60)
 
-
-    #pygame.draw.rect(screen, (0,0,200), (100, 100, 100, 100))
-
-    screen.blit(IMAGE, (25,25))
+    
+    screen.blit(Ace_Hearts, (250,500))
+    screen.blit(Ace_Clubs, (300,500))
 
 
 
