@@ -96,7 +96,7 @@ gameClock = pygame.time.Clock()
 
 # Main game loop
 while True:
-    screen.fill((255,255,255))
+    screen.fill((79, 156, 78))
 
     # Handle window close
     for event in pygame.event.get():
@@ -109,11 +109,10 @@ while True:
     gameClock.tick(60)
 
     
-    screen.blit(Ace_Clubs.imageFront, (400,400))
-    screen.blit(Ace_Hearts.imageBack, (600,400))
 
-    for card in Player1.handArray:
-       screen.blit(card.imageFront, (400,400))
+
+    for i in range(len(Player1.handArray)):
+       screen.blit(Player1.handArray[i].imageFront, (300 + i*50,400))
 
 
 
