@@ -15,13 +15,14 @@ class Card:
   def __init__(self, suit, value, imageFileName):
     self.suit = suit
     self.value = value
-    self.image = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (50, 50))
+    self.imageFront = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (75, 100))
+    self.imageBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (75, 100))
 
 
 
 
 Ace_Hearts = Card('H', 13, 'AceHearts.png')
-Ace_Clubs = Card('H', 13, 'AceClubs.png')
+Ace_Clubs = Card('C', 13, 'AceClubs.png')
 
 
 
@@ -44,8 +45,8 @@ while True:
     gameClock.tick(60)
 
     
-    screen.blit(Ace_Clubs.image, (300,500))
-    screen.blit(Ace_Hearts.image, (700,500))
+    screen.blit(Ace_Clubs.imageFront, (400,400))
+    screen.blit(Ace_Hearts.imageBack, (600,400))
 
 
 
