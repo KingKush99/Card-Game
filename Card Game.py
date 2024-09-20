@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # Initialize Pygame
 pygame.init()
@@ -15,8 +16,8 @@ class Card:
   def __init__(self, suit, value, imageFileName):
     self.suit = suit
     self.value = value
-    self.imageFront = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (75, 100))
-    self.imageBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (75, 100))
+    self.cardFace = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (75, 100))
+    self.cardBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (75, 100))
 
 
 
@@ -77,6 +78,8 @@ Four_Spades = Card('S', 4, 'FourSpades.png')
 Three_Spades = Card('S', 3, 'ThreeSpades.png')
 Two_Spades = Card('S', 2, 'TwoSpades.png')
 
+Deck = [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades]
+Pot = []
 
 class Player:
   def __init__(self, name, seat, cardArray):
@@ -86,8 +89,20 @@ class Player:
     self.runArray = []
     self.points = 0
 
-Player1 = Player("Connor", 1, [Ace_Diamonds, King_Spades, Two_Clubs])
+Player1 = Player("Connor", 1, [])
+Player2 = Player("Christian", 2, [])
+Player3 = Player("Mom", 3, [])
+Player4 = Player("Dad", 4, [])
 
+playerArray = [Player1, Player2, Player3, Player4]
+
+for i in range(7):
+  for j in range(len(playerArray)):
+    ind = random.randint(0, len(Deck) - 1)
+    playerArray[j].handArray.append(Deck[ind])
+    Deck.pop(ind)
+
+   
 
 
 # Create a clock object to standardize framerate
@@ -108,11 +123,12 @@ while True:
     # Set max game framerate
     gameClock.tick(60)
 
-    
+    for i in range(len(Deck)):
+      screen.blit(Deck[i].cardBack, (i,0))
 
-
-    for i in range(len(Player1.handArray)):
-       screen.blit(Player1.handArray[i].imageFront, (300 + i*50,400))
+    for i in range(len(playerArray)):
+      for j in range(len(playerArray[i].handArray)):
+        screen.blit(playerArray[i].handArray[j].cardFace, (300 + j*10, 25 + 150*i))
 
 
 
