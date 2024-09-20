@@ -16,11 +16,15 @@ class Card:
   def __init__(self, suit, value, imageFileName):
     self.suit = suit
     self.value = value
-    self.cardFace = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (75, 100))
-    self.cardBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (75, 100))
+    self.xpos = 0
+    self.ypos = 0
+    self.height = 100
+    self.width = 75
+    self.cardFace = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
+    self.cardBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (self.width, self.height))
 
 
-
+CARDS_PER_PLAYER = 7
 
 Ace_Hearts = Card('H', 14, 'AceHearts.png')
 King_Hearts = Card('H', 13, 'KingHearts.png')
@@ -96,13 +100,14 @@ Player4 = Player("Dad", 4, [])
 
 playerArray = [Player1, Player2, Player3, Player4]
 
-for i in range(7):
-  for j in range(len(playerArray)):
-    ind = random.randint(0, len(Deck) - 1)
-    playerArray[j].handArray.append(Deck[ind])
-    Deck.pop(ind)
+def DealCards(numCards):
+  for i in range(numCards):
+    for j in range(len(playerArray)):
+      if len(Deck) > 0:
+        ind = random.randint(0, len(Deck) - 1)
+        playerArray[j].handArray.append(Deck[ind])
+        Deck.pop(ind)
 
-   
 
 
 # Create a clock object to standardize framerate
@@ -118,8 +123,14 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+          if len(Deck) > 0:
+            if (event.pos[0] >= Deck[len(Deck) - 1].xpos) & (event.pos[0] <= Deck[len(Deck) - 1].xpos + Deck[len(Deck) - 1].width):
+              if (event.pos[1] >= Deck[len(Deck) - 1].ypos) & (event.pos[1] <= Deck[len(Deck) - 1].ypos + Deck[len(Deck) - 1].height):
+                DealCards(CARDS_PER_PLAYER)
 
-    
+
+
     # Set max game framerate
     gameClock.tick(60)
 
@@ -128,7 +139,9 @@ while True:
 
     for i in range(len(playerArray)):
       for j in range(len(playerArray[i].handArray)):
-        screen.blit(playerArray[i].handArray[j].cardFace, (300 + j*10, 25 + 150*i))
+        playerArray[i].handArray[j].xpos = 300 + j*10
+        playerArray[i].handArray[j].ypos = 25 + 150*i
+        screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
 
 
 
