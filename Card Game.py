@@ -22,6 +22,7 @@ class Card:
     self.width = 75
     self.cardFace = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
     self.cardBack = pygame.transform.scale(pygame.image.load('BackOfCard.png').convert_alpha(), (self.width, self.height))
+    self.selected = False
 
 
 CARDS_PER_PLAYER = 7
@@ -108,6 +109,10 @@ def DealCards(numCards):
         playerArray[j].handArray.append(Deck[ind])
         Deck.pop(ind)
 
+def Shuffle():
+  test = 1
+
+
 
 
 # Create a clock object to standardize framerate
@@ -124,10 +129,23 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
+          print(event.pos[0] , event.pos[1])  # print for testing purposes
           if len(Deck) > 0:
             if (event.pos[0] >= Deck[len(Deck) - 1].xpos) & (event.pos[0] <= Deck[len(Deck) - 1].xpos + Deck[len(Deck) - 1].width):
               if (event.pos[1] >= Deck[len(Deck) - 1].ypos) & (event.pos[1] <= Deck[len(Deck) - 1].ypos + Deck[len(Deck) - 1].height):
                 DealCards(CARDS_PER_PLAYER)
+                break
+          for i in range(len(playerArray)):
+            for j in range(len(playerArray[i].handArray)):
+              if (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + 10):
+                if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
+                  Pot.append(playerArray[i].handArray[j])
+                  playerArray[i].handArray.pop(j)
+                  Pot[len(Pot) - 1].xpos = 500
+                  Pot[len(Pot) - 1].xpos = 500
+                  break
+                  
+                  
 
 
 
@@ -135,7 +153,10 @@ while True:
     gameClock.tick(60)
 
     for i in range(len(Deck)):
-      screen.blit(Deck[i].cardBack, (i,0))
+      screen.blit(Deck[i].cardBack, (Deck[i].xpos, Deck[i].ypos))
+
+    for i in range(len(Pot)):
+      screen.blit(Pot[i].cardFace, (Pot[i].xpos, Pot[i].ypos))
 
     for i in range(len(playerArray)):
       for j in range(len(playerArray[i].handArray)):
