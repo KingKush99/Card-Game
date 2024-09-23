@@ -44,7 +44,7 @@ class cardPile:
       self.cardArray[i].xpos = self.xpos + self.cardSep * i
       self.cardArray[i].ypos = self.ypos
 
-  def DealCards(self, numCards, playerArray):
+  def deal_Cards(self, numCards, playerArray):
     for i in range(numCards):
       for j in range(len(playerArray)):
         if len(Deck.cardArray) > 0:
@@ -53,12 +53,10 @@ class cardPile:
         else:
           break
 
-
   def Shuffle(self):
     for i in range(len(self.cardArray)):
       j = random.randint(0,len(self.cardArray) - 1)
       self.cardArray[i], self.cardArray[j] = self.cardArray[j], self.cardArray[i]
-
 
 
 
@@ -69,11 +67,24 @@ class Player:
     self.handArray = cardArray
     self.runArray = []
     self.points = 0
+    self.cardSelected = False
 
   def set_Coordinates(self):
     for i in range(len(self.handArray)):
       self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
       self.handArray[i].ypos = ((self.seat + 2) % 2) * pow(-1, self.seat % 3) * 200 + SCREEN_HEIGHT/2 -50
+
+  def select_Card(self, cardIndex):
+    self.handArray[cardIndex].selected = True
+    self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos - 10
+
+  def play_Card(self): # To develop
+    test = 1
+
+  def deselect_Card(self, cardIndex):
+    if self.handArray[cardIndex].selected == True:
+      self.handArray[cardIndex].selected = False
+      self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos + 10
 
 
 #######################
@@ -148,18 +159,6 @@ Player4 = Player("Dad", 4, [])
 
 playerArray = [Player1, Player2, Player3, Player4]
 
-'''
-# Function to be put inside of cardPile class
-def DealCards(numCards):
-  for i in range(numCards):
-    for j in range(len(playerArray)):
-      if len(Deck.cardArray) > 0:
-        ind = random.randint(0, len(Deck.cardArray) - 1)
-        playerArray[j].handArray.append(Deck.cardArray[ind])
-        Deck.cardArray.pop(ind)
-'''
-
-
 
 
 
@@ -169,6 +168,7 @@ gameClock = pygame.time.Clock()
 #################
 ## Main game loop
 #################
+Deck.set_Coordinates()
 while True:
     screen.fill((79, 156, 78))
 
@@ -183,8 +183,11 @@ while True:
           if len(Deck.cardArray) > 0:
             if (event.pos[0] >= Deck.cardArray[len(Deck.cardArray) - 1].xpos) & (event.pos[0] <= Deck.cardArray[len(Deck.cardArray) - 1].xpos + Deck.cardArray[len(Deck.cardArray) - 1].width):
               if (event.pos[1] >= Deck.cardArray[len(Deck.cardArray) - 1].ypos) & (event.pos[1] <= Deck.cardArray[len(Deck.cardArray) - 1].ypos + Deck.cardArray[len(Deck.cardArray) - 1].height):
-                #DealCards(CARDS_PER_PLAYER)
-                Deck.DealCards(CARDS_PER_PLAYER, playerArray)
+                Deck.deal_Cards(CARDS_PER_PLAYER, playerArray)
+                Deck.set_Coordinates()
+                Pot.set_Coordinates()
+                for i in range(len(playerArray)):
+                  playerArray[i].set_Coordinates()
                 break
           # If you click a card in hand then play the card
           for i in range(len(playerArray)):
@@ -192,28 +195,53 @@ while True:
               if j == len(playerArray[i].handArray) -1: # if it's the last card in the hand then the selection area is larger
                 if (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + playerArray[i].handArray[j].width):
                   if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
-                    Pot.cardArray.append(playerArray[i].handArray[j])
-                    playerArray[i].handArray.pop(j)
-                    break
+                    if playerArray[i].handArray[j].selected == True:
+                      Pot.cardArray.append(playerArray[i].handArray[j])
+                      playerArray[i].handArray.pop(j)
+                      Deck.set_Coordinates()
+                      Pot.set_Coordinates()
+                      playerArray[i].set_Coordinates()
+                      break
+                    else:
+                      if playerArray[i].cardSelected == True:
+                        for k in range(len(playerArray[i].handArray)):
+                          playerArray[i].deselect_Card(k) # Deselect everything else
+                      playerArray[i].select_Card(j) # Select the card that was clicked
+                      playerArray[i].cardSelected = True
+                      break                   
               elif (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + CARD_SEPARATION): # for all other cards just select in the margin
                 if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
-                  Pot.cardArray.append(playerArray[i].handArray[j])
-                  playerArray[i].handArray.pop(j)
-                  break
-          
-                  
+                  if playerArray[i].handArray[j].selected == True:
+                      Pot.cardArray.append(playerArray[i].handArray[j])
+                      playerArray[i].handArray.pop(j)
+                      Deck.set_Coordinates()
+                      Pot.set_Coordinates()
+                      playerArray[i].set_Coordinates()
+                      break
+                  else:
+                      if playerArray[i].cardSelected == True:
+                        for k in range(len(playerArray[i].handArray)):
+                          playerArray[i].deselect_Card(k) # Deselect everything else
+                      playerArray[i].select_Card(j) # Select the card that was clicked
+                      playerArray[i].cardSelected = True
+                      break 
+          # If nothing important was clicked
+          '''
+          for i in range(len(playerArray)):
+            if playerArray[i].cardSelected == True:
+              for k in range(len(playerArray[i].handArray)):
+                playerArray[i].deselect_Card(k) # Deselect everything else
+              playerArray[i].cardSelected = False
+          '''
+    
 
-    # Display cards (may be calling set_Coordinates too often)
-    Deck.set_Coordinates()
     for i in range(len(Deck.cardArray)):
       screen.blit(Deck.cardArray[i].cardBack, (Deck.cardArray[i].xpos, Deck.cardArray[i].ypos))
-
-    Pot.set_Coordinates()
+    
     for i in range(len(Pot.cardArray)):
       screen.blit(Pot.cardArray[i].cardFace, (Pot.cardArray[i].xpos, Pot.cardArray[i].ypos))
 
     for i in range(len(playerArray)):
-      playerArray[i].set_Coordinates()
       for j in range(len(playerArray[i].handArray)):
         screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
 
