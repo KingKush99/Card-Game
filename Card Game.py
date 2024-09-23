@@ -84,8 +84,24 @@ Four_Spades = Card('S', 4, 'FourSpades.png')
 Three_Spades = Card('S', 3, 'ThreeSpades.png')
 Two_Spades = Card('S', 2, 'TwoSpades.png')
 
-Deck = [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades]
-Pot = []
+class cardPile:
+  def __init__(self, xpos, ypos, cardSep, cardArray):
+    self.cardArray = cardArray
+    self.xpos = xpos
+    self.ypos = ypos
+    self.cardSep = cardSep
+
+  def set_Coordinates(self):
+    for i in range(len(self.cardArray)):
+      self.cardArray[i].xpos = self.xpos + self.cardSep * i
+      self.cardArray[i].ypos = self.ypos
+
+
+Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades])
+
+Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
+#Deck = [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades]
+#Pot = []
 
 class Player:
   def __init__(self, name, seat, cardArray):
@@ -113,10 +129,10 @@ playerArray = [Player1, Player2, Player3, Player4]
 def DealCards(numCards):
   for i in range(numCards):
     for j in range(len(playerArray)):
-      if len(Deck) > 0:
-        ind = random.randint(0, len(Deck) - 1)
-        playerArray[j].handArray.append(Deck[ind])
-        Deck.pop(ind)
+      if len(Deck.cardArray) > 0:
+        ind = random.randint(0, len(Deck.cardArray) - 1)
+        playerArray[j].handArray.append(Deck.cardArray[ind])
+        Deck.cardArray.pop(ind)
 
 def Shuffle():
   test = 1
@@ -138,10 +154,9 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-          print(event.pos[0] , event.pos[1])  # print for testing purposes
-          if len(Deck) > 0:
-            if (event.pos[0] >= Deck[len(Deck) - 1].xpos) & (event.pos[0] <= Deck[len(Deck) - 1].xpos + Deck[len(Deck) - 1].width):
-              if (event.pos[1] >= Deck[len(Deck) - 1].ypos) & (event.pos[1] <= Deck[len(Deck) - 1].ypos + Deck[len(Deck) - 1].height):
+          if len(Deck.cardArray) > 0:
+            if (event.pos[0] >= Deck.cardArray[len(Deck.cardArray) - 1].xpos) & (event.pos[0] <= Deck.cardArray[len(Deck.cardArray) - 1].xpos + Deck.cardArray[len(Deck.cardArray) - 1].width):
+              if (event.pos[1] >= Deck.cardArray[len(Deck.cardArray) - 1].ypos) & (event.pos[1] <= Deck.cardArray[len(Deck.cardArray) - 1].ypos + Deck.cardArray[len(Deck.cardArray) - 1].height):
                 DealCards(CARDS_PER_PLAYER)
                 break
           for i in range(len(playerArray)):
@@ -149,17 +164,17 @@ while True:
               if j == len(playerArray[i].handArray) -1: # if it's the last card in the hand then the selection area is larger
                 if (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + playerArray[i].handArray[j].width):
                   if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
-                    Pot.append(playerArray[i].handArray[j])
+                    Pot.cardArray.append(playerArray[i].handArray[j])
                     playerArray[i].handArray.pop(j)
-                    Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
-                    Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
+                    #Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
+                    #Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
                     break
               elif (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + CARD_SEPARATION): # for all other cards just select in the margin
                 if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
-                  Pot.append(playerArray[i].handArray[j])
+                  Pot.cardArray.append(playerArray[i].handArray[j])
                   playerArray[i].handArray.pop(j)
-                  Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
-                  Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
+                  #Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
+                  #Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
                   break
           
                   
@@ -170,11 +185,13 @@ while True:
     # Set max game framerate
     gameClock.tick(60)
 
-    for i in range(len(Deck)):
-      screen.blit(Deck[i].cardBack, (Deck[i].xpos, Deck[i].ypos))
+    Deck.set_Coordinates()
+    for i in range(len(Deck.cardArray)):
+      screen.blit(Deck.cardArray[i].cardBack, (Deck.cardArray[i].xpos, Deck.cardArray[i].ypos))
 
-    for i in range(len(Pot)):
-      screen.blit(Pot[i].cardFace, (Pot[i].xpos, Pot[i].ypos))
+    Pot.set_Coordinates()
+    for i in range(len(Pot.cardArray)):
+      screen.blit(Pot.cardArray[i].cardFace, (Pot.cardArray[i].xpos, Pot.cardArray[i].ypos))
 
     for i in range(len(playerArray)):
       playerArray[i].set_Coordinates()
