@@ -44,11 +44,21 @@ class cardPile:
       self.cardArray[i].xpos = self.xpos + self.cardSep * i
       self.cardArray[i].ypos = self.ypos
 
-  def DealCards(self, numCards):  # To develop
-    test = 1
+  def DealCards(self, numCards, playerArray):
+    for i in range(numCards):
+      for j in range(len(playerArray)):
+        if len(Deck.cardArray) > 0:
+          playerArray[j].handArray.append(Deck.cardArray[len(Deck.cardArray) - 1]) # Deal top card
+          Deck.cardArray.pop(len(Deck.cardArray) - 1)
+        else:
+          break
 
-  def Shuffle(self):  # To develop
-    test = 1
+
+  def Shuffle(self):
+    for i in range(len(self.cardArray)):
+      j = random.randint(0,len(self.cardArray) - 1)
+      self.cardArray[i], self.cardArray[j] = self.cardArray[j], self.cardArray[i]
+
 
 
 
@@ -138,7 +148,7 @@ Player4 = Player("Dad", 4, [])
 
 playerArray = [Player1, Player2, Player3, Player4]
 
-
+'''
 # Function to be put inside of cardPile class
 def DealCards(numCards):
   for i in range(numCards):
@@ -147,7 +157,7 @@ def DealCards(numCards):
         ind = random.randint(0, len(Deck.cardArray) - 1)
         playerArray[j].handArray.append(Deck.cardArray[ind])
         Deck.cardArray.pop(ind)
-
+'''
 
 
 
@@ -173,7 +183,8 @@ while True:
           if len(Deck.cardArray) > 0:
             if (event.pos[0] >= Deck.cardArray[len(Deck.cardArray) - 1].xpos) & (event.pos[0] <= Deck.cardArray[len(Deck.cardArray) - 1].xpos + Deck.cardArray[len(Deck.cardArray) - 1].width):
               if (event.pos[1] >= Deck.cardArray[len(Deck.cardArray) - 1].ypos) & (event.pos[1] <= Deck.cardArray[len(Deck.cardArray) - 1].ypos + Deck.cardArray[len(Deck.cardArray) - 1].height):
-                DealCards(CARDS_PER_PLAYER)
+                #DealCards(CARDS_PER_PLAYER)
+                Deck.DealCards(CARDS_PER_PLAYER, playerArray)
                 break
           # If you click a card in hand then play the card
           for i in range(len(playerArray)):
