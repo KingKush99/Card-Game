@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 
+
 # Initialize Pygame
 pygame.init()
 
@@ -17,7 +18,6 @@ pygame.display.set_caption("Card Game")
 ##########
 ## CLASSES
 ##########
-
 class Card:
   def __init__(self, suit, value, imageFileName):
     self.suit = suit
@@ -59,7 +59,7 @@ class cardPile:
       self.cardArray[i], self.cardArray[j] = self.cardArray[j], self.cardArray[i]
 
 
-
+# Next Step: Attribute that says which Player's turn #
 class Player:
   def __init__(self, name, seat, cardArray):
     self.name = name
@@ -68,6 +68,13 @@ class Player:
     self.runArray = []
     self.points = 0
     self.cardSelected = False
+    self.turn = False
+
+  def set_turn_true(self):
+    self.turn = True
+  
+  def set_turn_false(self):
+    self.turn = False
 
   def set_Coordinates(self):
     for i in range(len(self.handArray)):
