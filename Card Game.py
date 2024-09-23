@@ -8,6 +8,7 @@ pygame.init()
 # Set up screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+CARD_SEPARATION = 20
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Card Game")
 
@@ -96,7 +97,7 @@ class Player:
 
   def set_Coordinates(self):
     for i in range(len(self.handArray)):
-      self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + 10 * i
+      self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
       self.handArray[i].ypos = ((self.seat + 2) % 2) * pow(-1, self.seat % 3) * 200 + SCREEN_HEIGHT/2 -50
 
 
@@ -145,7 +146,15 @@ while True:
                 break
           for i in range(len(playerArray)):
             for j in range(len(playerArray[i].handArray)):
-              if (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + 10):
+              if j == len(playerArray[i].handArray) -1: # if it's the last card in the hand then the selection area is larger
+                if (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + playerArray[i].handArray[j].width):
+                  if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
+                    Pot.append(playerArray[i].handArray[j])
+                    playerArray[i].handArray.pop(j)
+                    Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
+                    Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
+                    break
+              elif (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + CARD_SEPARATION): # for all other cards just select in the margin
                 if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
                   Pot.append(playerArray[i].handArray[j])
                   playerArray[i].handArray.pop(j)
@@ -170,8 +179,6 @@ while True:
     for i in range(len(playerArray)):
       playerArray[i].set_Coordinates()
       for j in range(len(playerArray[i].handArray)):
-        #playerArray[i].handArray[j].xpos = 300 + j*10
-        #playerArray[i].handArray[j].ypos = 25 + 150*i
         screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
 
 
