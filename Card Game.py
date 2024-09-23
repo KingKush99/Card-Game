@@ -168,6 +168,7 @@ gameClock = pygame.time.Clock()
 #################
 ## Main game loop
 #################
+Deck.Shuffle()
 Deck.set_Coordinates()
 while True:
     screen.fill((79, 156, 78))
