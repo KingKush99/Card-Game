@@ -8,10 +8,15 @@ pygame.init()
 # Set up screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+CARDS_PER_PLAYER = 7
 CARD_SEPARATION = 20
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Card Game")
 
+
+##########
+## CLASSES
+##########
 
 class Card:
   def __init__(self, suit, value, imageFileName):
@@ -26,7 +31,44 @@ class Card:
     self.selected = False
 
 
-CARDS_PER_PLAYER = 7
+
+class cardPile:
+  def __init__(self, xpos, ypos, cardSep, cardArray):
+    self.cardArray = cardArray
+    self.xpos = xpos
+    self.ypos = ypos
+    self.cardSep = cardSep
+
+  def set_Coordinates(self):
+    for i in range(len(self.cardArray)):
+      self.cardArray[i].xpos = self.xpos + self.cardSep * i
+      self.cardArray[i].ypos = self.ypos
+
+  def DealCards(self, numCards):  # To develop
+    test = 1
+
+  def Shuffle(self):  # To develop
+    test = 1
+
+
+
+class Player:
+  def __init__(self, name, seat, cardArray):
+    self.name = name
+    self.seat = seat
+    self.handArray = cardArray
+    self.runArray = []
+    self.points = 0
+
+  def set_Coordinates(self):
+    for i in range(len(self.handArray)):
+      self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
+      self.handArray[i].ypos = ((self.seat + 2) % 2) * pow(-1, self.seat % 3) * 200 + SCREEN_HEIGHT/2 -50
+
+
+#######################
+## OBJECT INSTANTIATION
+#######################
 
 Ace_Hearts = Card('H', 14, 'AceHearts.png')
 King_Hearts = Card('H', 13, 'KingHearts.png')
@@ -84,38 +126,9 @@ Four_Spades = Card('S', 4, 'FourSpades.png')
 Three_Spades = Card('S', 3, 'ThreeSpades.png')
 Two_Spades = Card('S', 2, 'TwoSpades.png')
 
-class cardPile:
-  def __init__(self, xpos, ypos, cardSep, cardArray):
-    self.cardArray = cardArray
-    self.xpos = xpos
-    self.ypos = ypos
-    self.cardSep = cardSep
-
-  def set_Coordinates(self):
-    for i in range(len(self.cardArray)):
-      self.cardArray[i].xpos = self.xpos + self.cardSep * i
-      self.cardArray[i].ypos = self.ypos
-
 
 Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades])
-
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
-#Deck = [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades]
-#Pot = []
-
-class Player:
-  def __init__(self, name, seat, cardArray):
-    self.name = name
-    self.seat = seat
-    self.handArray = cardArray
-    self.runArray = []
-    self.points = 0
-
-  def set_Coordinates(self):
-    for i in range(len(self.handArray)):
-      self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
-      self.handArray[i].ypos = ((self.seat + 2) % 2) * pow(-1, self.seat % 3) * 200 + SCREEN_HEIGHT/2 -50
-
 
 
 Player1 = Player("Connor", 1, [])
@@ -123,9 +136,10 @@ Player2 = Player("Christian", 2, [])
 Player3 = Player("Mom", 3, [])
 Player4 = Player("Dad", 4, [])
 
-
 playerArray = [Player1, Player2, Player3, Player4]
 
+
+# Function to be put inside of cardPile class
 def DealCards(numCards):
   for i in range(numCards):
     for j in range(len(playerArray)):
@@ -134,8 +148,7 @@ def DealCards(numCards):
         playerArray[j].handArray.append(Deck.cardArray[ind])
         Deck.cardArray.pop(ind)
 
-def Shuffle():
-  test = 1
+
 
 
 
@@ -143,22 +156,26 @@ def Shuffle():
 # Create a clock object to standardize framerate
 gameClock = pygame.time.Clock()
 
-
-# Main game loop
+#################
+## Main game loop
+#################
 while True:
     screen.fill((79, 156, 78))
 
-    # Handle window close
+    # Handle mouse clicks
     for event in pygame.event.get():
+        # If you click close window
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
+          # If you click the Deck then deal the cards
           if len(Deck.cardArray) > 0:
             if (event.pos[0] >= Deck.cardArray[len(Deck.cardArray) - 1].xpos) & (event.pos[0] <= Deck.cardArray[len(Deck.cardArray) - 1].xpos + Deck.cardArray[len(Deck.cardArray) - 1].width):
               if (event.pos[1] >= Deck.cardArray[len(Deck.cardArray) - 1].ypos) & (event.pos[1] <= Deck.cardArray[len(Deck.cardArray) - 1].ypos + Deck.cardArray[len(Deck.cardArray) - 1].height):
                 DealCards(CARDS_PER_PLAYER)
                 break
+          # If you click a card in hand then play the card
           for i in range(len(playerArray)):
             for j in range(len(playerArray[i].handArray)):
               if j == len(playerArray[i].handArray) -1: # if it's the last card in the hand then the selection area is larger
@@ -166,25 +183,16 @@ while True:
                   if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
                     Pot.cardArray.append(playerArray[i].handArray[j])
                     playerArray[i].handArray.pop(j)
-                    #Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
-                    #Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
                     break
               elif (event.pos[0] >= playerArray[i].handArray[j].xpos) & (event.pos[0] <= playerArray[i].handArray[j].xpos + CARD_SEPARATION): # for all other cards just select in the margin
                 if (event.pos[1] >= playerArray[i].handArray[j].ypos) & (event.pos[1] <= playerArray[i].handArray[j].ypos + playerArray[i].handArray[j].height):
                   Pot.cardArray.append(playerArray[i].handArray[j])
                   playerArray[i].handArray.pop(j)
-                  #Pot[len(Pot) - 1].xpos = SCREEN_WIDTH/2 - 100
-                  #Pot[len(Pot) - 1].ypos = SCREEN_HEIGHT/2 - 50
                   break
           
                   
-                  
 
-
-
-    # Set max game framerate
-    gameClock.tick(60)
-
+    # Display cards (may be calling set_Coordinates too often)
     Deck.set_Coordinates()
     for i in range(len(Deck.cardArray)):
       screen.blit(Deck.cardArray[i].cardBack, (Deck.cardArray[i].xpos, Deck.cardArray[i].ypos))
@@ -199,5 +207,7 @@ while True:
         screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
 
 
+    # Set max game framerate
+    gameClock.tick(60)
 
     pygame.display.flip()
