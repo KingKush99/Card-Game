@@ -177,6 +177,8 @@ gameClock = pygame.time.Clock()
 #################
 Deck.Shuffle()
 Deck.set_Coordinates()
+playerTurn = 0
+playerArray[0].set_turn_true() # It's the first player's turn
 while True:
     screen.fill((79, 156, 78))
 
