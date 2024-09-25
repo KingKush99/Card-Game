@@ -5,6 +5,8 @@ import random
 
 # Initialize Pygame
 pygame.init()
+pygame.font.init()
+game_font = pygame.font.SysFont('Comic Sans MS', 30)
 
 # Set up screen dimensions
 SCREEN_WIDTH = 800
@@ -69,6 +71,9 @@ class Player:
     self.points = 0
     self.cardSelected = False
     self.turn = False
+    self.text = game_font.render(self.name, False, (0, 0, 0))
+    self.text_xpos = 0
+    self.text_ypos = 0
 
   def set_turn_true(self):
     self.turn = True
@@ -76,10 +81,14 @@ class Player:
   def set_turn_false(self):
     self.turn = False
 
-  def set_Coordinates(self):
+  def set_Coordinates(self, playerTurn, numPlayers):
+    relativeSeat = (self.seat + playerTurn) % numPlayers
+    self.text_xpos = ((relativeSeat + 0) % 2) * pow(-1, (relativeSeat + 1) % 3) * 250 + SCREEN_WIDTH/2 -100
+    self.text_ypos = ((relativeSeat + 1) % 2) * pow(-1, (relativeSeat + 2) % 3) * 200 + SCREEN_HEIGHT/2 -100
     for i in range(len(self.handArray)):
-      self.handArray[i].xpos = ((self.seat + 1) % 2) * pow(-1, self.seat % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
-      self.handArray[i].ypos = ((self.seat + 2) % 2) * pow(-1, self.seat % 3) * 200 + SCREEN_HEIGHT/2 -50
+      self.handArray[i].xpos = ((relativeSeat + 0) % 2) * pow(-1, (relativeSeat + 1) % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
+      self.handArray[i].ypos = ((relativeSeat + 1) % 2) * pow(-1, (relativeSeat + 2) % 3) * 200 + SCREEN_HEIGHT/2 -50
+      
 
   def select_Card(self, cardIndex):
     self.handArray[cardIndex].selected = True
@@ -159,10 +168,10 @@ Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
 
 
-Player1 = Player("Connor", 1, [])
-Player2 = Player("Christian", 2, [])
-Player3 = Player("Mom", 3, [])
-Player4 = Player("Dad", 4, [])
+Player1 = Player("Connor", 0, [])
+Player2 = Player("Christian", 1, [])
+Player3 = Player("Mom", 2, [])
+Player4 = Player("Dad", 3, [])
 
 playerArray = [Player1, Player2, Player3, Player4]
 
@@ -197,7 +206,7 @@ while True:
                 Deck.set_Coordinates()
                 Pot.set_Coordinates()
                 for i in range(len(playerArray)):
-                  playerArray[i].set_Coordinates()
+                  playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                 break
           # If you click a card in hand then play the card
             for j in range(len(playerArray[playerTurn].handArray)):
@@ -209,10 +218,12 @@ while True:
                       playerArray[playerTurn].handArray.pop(j)
                       Deck.set_Coordinates()
                       Pot.set_Coordinates()
-                      playerArray[playerTurn].set_Coordinates()
                       playerArray[playerTurn].set_turn_false()
                       playerTurn = (playerTurn + 1) % len(playerArray)
                       playerArray[playerTurn].set_turn_true()
+                      for i in range(len(playerArray)):
+                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                      break
                       break
                     else:
                       if playerArray[playerTurn].cardSelected == True:
@@ -228,10 +239,12 @@ while True:
                       playerArray[playerTurn].handArray.pop(j)
                       Deck.set_Coordinates()
                       Pot.set_Coordinates()
-                      playerArray[playerTurn].set_Coordinates()
                       playerArray[playerTurn].set_turn_false()
                       playerTurn = (playerTurn + 1) % len(playerArray)
                       playerArray[playerTurn].set_turn_true()
+                      for i in range(len(playerArray)):
+                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                      break
                       break
                   else:
                       if playerArray[playerTurn].cardSelected == True:
@@ -258,7 +271,11 @@ while True:
 
     for i in range(len(playerArray)):
       for j in range(len(playerArray[i].handArray)):
-        screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
+          if playerArray[i].turn == True:
+            screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
+            screen.blit(playerArray[i].text, (playerArray[i].text_xpos, playerArray[i].text_ypos))
+          else:
+            screen.blit(playerArray[i].handArray[j].cardBack, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
 
 
     # Set max game framerate
