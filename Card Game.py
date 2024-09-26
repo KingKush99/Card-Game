@@ -7,7 +7,6 @@ import random
 pygame.init()
 pygame.font.init()
 game_font = pygame.font.SysFont('Constantia', 20)
-#print(pygame.font.get_fonts())
 
 # Set up screen dimensions
 SCREEN_WIDTH = 800
@@ -212,57 +211,27 @@ while True:
                 break
           # If you click a card in hand then play the card
             for j in range(len(playerArray[playerTurn].handArray)):
-              if j == len(playerArray[playerTurn].handArray) -1: # if it's the last card in the hand then the selection area is larger
-                if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + playerArray[playerTurn].handArray[j].width):
-                  if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
-                    if playerArray[playerTurn].handArray[j].selected == True:
-                      playerArray[playerTurn].play_Card(j,Pot)
-                      #Pot.cardArray.append(playerArray[playerTurn].handArray[j])
-                      #playerArray[playerTurn].handArray.pop(j)
-                      playerArray[playerTurn].set_turn_false()
-                      playerTurn = (playerTurn + 1) % len(playerArray)
-                      playerArray[playerTurn].set_turn_true()
-                      for i in range(len(playerArray)):
-                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
-                      Deck.set_Coordinates()
-                      Pot.set_Coordinates()
-                      break
-                    else:
-                      if playerArray[playerTurn].cardSelected == True:
-                        for k in range(len(playerArray[playerTurn].handArray)):
-                          playerArray[playerTurn].deselect_Card(k) # Deselect everything else
-                      playerArray[playerTurn].select_Card(j) # Select the card that was clicked
-                      playerArray[playerTurn].cardSelected = True
-                      break                   
-              elif (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + CARD_SEPARATION): # for all other cards just select in the margin
+              selectionWidth = (j == len(playerArray[playerTurn].handArray) -1)*(playerArray[playerTurn].handArray[j].width) + (j != len(playerArray[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
+              if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
                 if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
                   if playerArray[playerTurn].handArray[j].selected == True:
-                      playerArray[playerTurn].play_Card(j,Pot)
-                      #Pot.cardArray.append(playerArray[playerTurn].handArray[j])
-                      #playerArray[playerTurn].handArray.pop(j)
-                      playerArray[playerTurn].set_turn_false()
-                      playerTurn = (playerTurn + 1) % len(playerArray)
-                      playerArray[playerTurn].set_turn_true()
-                      for i in range(len(playerArray)):
-                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
-                      Deck.set_Coordinates()
-                      Pot.set_Coordinates()
-                      break
+                    playerArray[playerTurn].play_Card(j,Pot)
+                    playerArray[playerTurn].set_turn_false()
+                    playerTurn = (playerTurn + 1) % len(playerArray)
+                    playerArray[playerTurn].set_turn_true()
+                    for i in range(len(playerArray)):
+                      playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                    Deck.set_Coordinates()
+                    Pot.set_Coordinates()
+                    break
                   else:
-                      if playerArray[playerTurn].cardSelected == True:
-                        for k in range(len(playerArray[playerTurn].handArray)):
-                          playerArray[playerTurn].deselect_Card(k) # Deselect everything else
-                      playerArray[playerTurn].select_Card(j) # Select the card that was clicked
-                      playerArray[playerTurn].cardSelected = True
-                      break 
-          # If nothing important was clicked
-          '''
-          for i in range(len(playerArray)):
-            if playerArray[i].cardSelected == True:
-              for k in range(len(playerArray[i].handArray)):
-                playerArray[i].deselect_Card(k) # Deselect everything else
-              playerArray[i].cardSelected = False
-          '''
+                    if playerArray[playerTurn].cardSelected == True:
+                      for k in range(len(playerArray[playerTurn].handArray)):
+                        playerArray[playerTurn].deselect_Card(k) # Deselect everything else
+                    playerArray[playerTurn].select_Card(j) # Select the card that was clicked
+                    playerArray[playerTurn].cardSelected = True
+                    break                   
+
     
 
     for i in range(len(Deck.cardArray)):
