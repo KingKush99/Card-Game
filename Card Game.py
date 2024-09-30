@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 
 
 # Initialize Pygame
@@ -61,7 +62,6 @@ class cardPile:
       self.cardArray[i], self.cardArray[j] = self.cardArray[j], self.cardArray[i]
 
 
-# Next Step: Attribute that says which Player's turn #
 class Player:
   def __init__(self, name, seat, cardArray):
     self.name = name
@@ -89,7 +89,6 @@ class Player:
       self.handArray[i].xpos = ((relativeSeat + 0) % 2) * pow(-1, (relativeSeat + 1) % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
       self.handArray[i].ypos = ((relativeSeat + 1) % 2) * pow(-1, (relativeSeat + 2) % 3) * 200 + SCREEN_HEIGHT/2 -50
       
-
   def select_Card(self, cardIndex):
     self.handArray[cardIndex].selected = True
     self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos - 10
@@ -102,6 +101,16 @@ class Player:
     if self.handArray[cardIndex].selected == True:
       self.handArray[cardIndex].selected = False
       self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos + 10
+
+  def sort_Cards(self):
+    sortGap = math.floor(len(self.handArray)/2)
+    while sortGap > 0:
+        for i in range(len(self.handArray)):
+            if i + sortGap < len(self.handArray):
+                if self.handArray[i].value > self.handArray[i + sortGap].value:
+                    self.handArray[i], self.handArray[i + sortGap] = self.handArray[i + sortGap], self.handArray[i]
+        sortGap = math.floor(sortGap/2)
+
 
 
 #######################
@@ -207,6 +216,7 @@ while True:
                 Deck.set_Coordinates()
                 Pot.set_Coordinates()
                 for i in range(len(playerArray)):
+                  playerArray[i].sort_Cards()
                   playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                 break
           # If you click a card in hand then play the card
@@ -216,11 +226,12 @@ while True:
                 if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
                   if playerArray[playerTurn].handArray[j].selected == True:
                     playerArray[playerTurn].play_Card(j,Pot)
+                    playerArray[playerTurn].sort_Cards()
                     playerArray[playerTurn].set_turn_false()
                     playerTurn = (playerTurn + 1) % len(playerArray)
                     playerArray[playerTurn].set_turn_true()
                     for i in range(len(playerArray)):
-                      playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                     Deck.set_Coordinates()
                     Pot.set_Coordinates()
                     break
