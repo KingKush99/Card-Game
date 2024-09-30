@@ -104,12 +104,21 @@ class Player:
 
   def sort_Cards(self):
     sortGap = math.floor(len(self.handArray)/2)
-    while sortGap > 0:
+    unSorted = True
+    swaps = False
+    while unSorted == True:
         for i in range(len(self.handArray)):
-            if i + sortGap < len(self.handArray):
-                if self.handArray[i].value > self.handArray[i + sortGap].value:
+            if (i == len(self.handArray) - 1) and (sortGap == 1) and (swaps == False): # If it's gone through one by one and made no swaps, then it's fully sorted
+                unSorted = False  
+            if i + sortGap < len(self.handArray):   
+                if self.handArray[i].value < self.handArray[i + sortGap].value:     # If left card greater than right card, then swap them
                     self.handArray[i], self.handArray[i + sortGap] = self.handArray[i + sortGap], self.handArray[i]
-        sortGap = math.floor(sortGap/2)
+                    swaps = True
+            else :  # Once we're out of range of the player's hand, lower the comparison gap by one (minimum gap of 1)
+                sortGap = max(sortGap - 1, 1)
+                swaps = False
+                break
+        
 
 
 
@@ -231,7 +240,7 @@ while True:
                     playerTurn = (playerTurn + 1) % len(playerArray)
                     playerArray[playerTurn].set_turn_true()
                     for i in range(len(playerArray)):
-                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                      playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                     Deck.set_Coordinates()
                     Pot.set_Coordinates()
                     break
