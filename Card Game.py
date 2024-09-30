@@ -120,7 +120,24 @@ class Player:
                 break
         
 
+class Button:
+    def __init__(self, text, xpos, ypos, width, height):
+        self.text = game_font.render(text, False, (255,255,255))
+        self.xpos = xpos
+        self.ypos = ypos
+        self.width = width
+        self.height = height
+        self.text_xpos = self.xpos + self.width/3
+        self.text_ypos = self.ypos + self.height/3
+        self.colour = (0,0,0)
+        #self.unclickedImage = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
+        #self.clickedImage = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
 
+    def click_Button(self):
+        self.colour = (50,25,175)
+
+    def unclick_Button(self):
+        self.colour = (0,0,0)
 
 #######################
 ## OBJECT INSTANTIATION
@@ -185,7 +202,9 @@ Two_Spades = Card('S', 2, 'TwoSpades.png')
 
 Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades])
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
-
+#LeftPot = cardPile(SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
+#RightPot = cardPile(SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
+testButton = Button("Test", 3*SCREEN_WIDTH/4, 3*SCREEN_HEIGHT/4, 100, 50)
 
 Player1 = Player("Connor", 0, [])
 Player2 = Player("Christian", 1, [])
@@ -229,37 +248,48 @@ while True:
                   playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                 break
           # If you click a card in hand then play the card
-            for j in range(len(playerArray[playerTurn].handArray)):
-              selectionWidth = (j == len(playerArray[playerTurn].handArray) -1)*(playerArray[playerTurn].handArray[j].width) + (j != len(playerArray[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
-              if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
-                if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
-                  if playerArray[playerTurn].handArray[j].selected == True:
-                    playerArray[playerTurn].play_Card(j,Pot)
-                    playerArray[playerTurn].sort_Cards()
-                    playerArray[playerTurn].set_turn_false()
-                    playerTurn = (playerTurn + 1) % len(playerArray)
-                    playerArray[playerTurn].set_turn_true()
-                    for i in range(len(playerArray)):
-                      playerArray[i].set_Coordinates(playerTurn, len(playerArray))
-                    Deck.set_Coordinates()
-                    Pot.set_Coordinates()
-                    break
-                  else:
-                    if playerArray[playerTurn].cardSelected == True:
-                      for k in range(len(playerArray[playerTurn].handArray)):
-                        playerArray[playerTurn].deselect_Card(k) # Deselect everything else
-                    playerArray[playerTurn].select_Card(j) # Select the card that was clicked
-                    playerArray[playerTurn].cardSelected = True
-                    break                   
+          for j in range(len(playerArray[playerTurn].handArray)):
+            selectionWidth = (j == len(playerArray[playerTurn].handArray) -1)*(playerArray[playerTurn].handArray[j].width) + (j != len(playerArray[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
+            if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
+              if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
+                if playerArray[playerTurn].handArray[j].selected == True:
+                  playerArray[playerTurn].play_Card(j,Pot)
+                  playerArray[playerTurn].sort_Cards()
+                  playerArray[playerTurn].set_turn_false()
+                  playerTurn = (playerTurn + 1) % len(playerArray)
+                  playerArray[playerTurn].set_turn_true()
+                  for i in range(len(playerArray)):
+                    playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                  Deck.set_Coordinates()
+                  Pot.set_Coordinates()
+                  break
+                else:
+                  if playerArray[playerTurn].cardSelected == True:
+                    for k in range(len(playerArray[playerTurn].handArray)):
+                      playerArray[playerTurn].deselect_Card(k) # Deselect everything else
+                  playerArray[playerTurn].select_Card(j) # Select the card that was clicked
+                  playerArray[playerTurn].cardSelected = True
+                  break
+          if (event.pos[0] >= testButton.xpos) & (event.pos[0] <= testButton.xpos + testButton.width):
+              if (event.pos[1] >= testButton.ypos) & (event.pos[1] <= testButton.ypos + testButton.height):
+                  testButton.click_Button()
 
     
+    
 
+    # Draw Button
+    pygame.draw.rect(screen, testButton.colour, pygame.Rect(testButton.xpos, testButton.ypos, testButton.width, testButton.height))
+    screen.blit(testButton.text, (testButton.text_xpos, testButton.text_ypos))
+
+    # Draw Deck
     for i in range(len(Deck.cardArray)):
       screen.blit(Deck.cardArray[i].cardBack, (Deck.cardArray[i].xpos, Deck.cardArray[i].ypos))
     
+    # Draw Pot
     for i in range(len(Pot.cardArray)):
       screen.blit(Pot.cardArray[i].cardFace, (Pot.cardArray[i].xpos, Pot.cardArray[i].ypos))
 
+    # Draw Player Hands
     for i in range(len(playerArray)):
       for j in range(len(playerArray[i].handArray)):
           if playerArray[i].turn == True:
