@@ -97,6 +97,15 @@ class Player:
     pileToPlayTo.cardArray.append(self.handArray[cardToPlay])
     self.handArray.pop(cardToPlay)
 
+  def play_Selected_Cards(self, pileToPlayTo):
+      i = 0
+      while i < len(self.handArray):
+        if self.handArray[i].selected == True:
+            self.deselect_Card(i)
+            self.play_Card(i, pileToPlayTo)            
+        else:
+            i = i + 1
+
   def deselect_Card(self, cardIndex):
     if self.handArray[cardIndex].selected == True:
       self.handArray[cardIndex].selected = False
@@ -253,26 +262,24 @@ while True:
             if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
               if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
                 if playerArray[playerTurn].handArray[j].selected == True:
-                  playerArray[playerTurn].play_Card(j,Pot)
+                  playerArray[playerTurn].deselect_Card(j)  # Deselect card if it was already selected
+                  break
+                else:
+                  playerArray[playerTurn].select_Card(j) # Select the card that was clicked
+                  playerArray[playerTurn].cardSelected = True
+                  break
+          # if you click the button
+          if (event.pos[0] >= testButton.xpos) & (event.pos[0] <= testButton.xpos + testButton.width):
+              if (event.pos[1] >= testButton.ypos) & (event.pos[1] <= testButton.ypos + testButton.height):
+                  testButton.click_Button() # Changes nutton colour
+                  playerArray[playerTurn].play_Selected_Cards(Pot)
                   playerArray[playerTurn].sort_Cards()
                   playerArray[playerTurn].set_turn_false()
                   playerTurn = (playerTurn + 1) % len(playerArray)
                   playerArray[playerTurn].set_turn_true()
                   for i in range(len(playerArray)):
                     playerArray[i].set_Coordinates(playerTurn, len(playerArray))
-                  Deck.set_Coordinates()
                   Pot.set_Coordinates()
-                  break
-                else:
-                  if playerArray[playerTurn].cardSelected == True:
-                    for k in range(len(playerArray[playerTurn].handArray)):
-                      playerArray[playerTurn].deselect_Card(k) # Deselect everything else
-                  playerArray[playerTurn].select_Card(j) # Select the card that was clicked
-                  playerArray[playerTurn].cardSelected = True
-                  break
-          if (event.pos[0] >= testButton.xpos) & (event.pos[0] <= testButton.xpos + testButton.width):
-              if (event.pos[1] >= testButton.ypos) & (event.pos[1] <= testButton.ypos + testButton.height):
-                  testButton.click_Button()
 
     
     
