@@ -63,16 +63,16 @@ class cardPile:
 
 class Player:
   def __init__(self, name, seat, cardArray):
-    self.name = name
+    self.name = game_font.render(name, False, (0,0,0))
     self.seat = seat
     self.handArray = cardArray
     self.runArray = []
     self.points = 0
-    self.cardSelected = False
+    self.numberOfSelectedCards = 0
     self.turn = False
-    self.text = game_font.render(self.name, False, (0,0,0))
     self.text_xpos = 0
     self.text_ypos = 0
+    self.message = game_font.render("", False, (0,0,0))
 
   def set_turn_true(self):
     self.turn = True
@@ -88,9 +88,16 @@ class Player:
       self.handArray[i].xpos = ((relativeSeat + 0) % 2) * pow(-1, (relativeSeat + 1) % 3) * 250 + SCREEN_WIDTH/2 -100 + CARD_SEPARATION * i
       self.handArray[i].ypos = ((relativeSeat + 1) % 2) * pow(-1, (relativeSeat + 2) % 3) * 200 + SCREEN_HEIGHT/2 -50
       
-  def select_Card(self, cardIndex):
-    self.handArray[cardIndex].selected = True
-    self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos - 10
+  def select_Card(self, cardIndex, allowedNumberOfSelectedCards):
+    if self.numberOfSelectedCards < allowedNumberOfSelectedCards:
+        self.handArray[cardIndex].selected = True
+        self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos - 10
+        self.numberOfSelectedCards = self.numberOfSelectedCards + 1
+        self.message = game_font.render("", False, (0,0,0))
+    else:
+        #print("Can only select " + str(allowedNumberOfSelectedCards) + " cards")
+        text = "*Can only select " + str(allowedNumberOfSelectedCards) + " cards"
+        self.message = game_font.render(text, False, (0,0,0))
 
   def play_Card(self, cardToPlay, pileToPlayTo): # To develop
     pileToPlayTo.cardArray.append(self.handArray[cardToPlay])
@@ -109,6 +116,8 @@ class Player:
     if self.handArray[cardIndex].selected == True:
       self.handArray[cardIndex].selected = False
       self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos + 10
+      self.numberOfSelectedCards = self.numberOfSelectedCards - 1
+      self.message = game_font.render("", False, (0,0,0))
 
   def sort_Cards(self):
     sortGap = math.floor(len(self.handArray)/2)
@@ -270,15 +279,14 @@ while True:
                   playerArray[playerTurn].deselect_Card(j)  # Deselect card if it was already selected
                   break
                 else:
-                  playerArray[playerTurn].select_Card(j) # Select the card that was clicked
-                  playerArray[playerTurn].cardSelected = True
+                  playerArray[playerTurn].select_Card(j, 1 + 1*(len(Pot.cardArray) > 0)) # Select the card that was clicked
                   break
           # if you click the button
           if (event.pos[0] >= playCardsButton.xpos) & (event.pos[0] <= playCardsButton.xpos + playCardsButton.width):
               if (event.pos[1] >= playCardsButton.ypos) & (event.pos[1] <= playCardsButton.ypos + playCardsButton.height):
                   playCardsButton.click_Button() # Changes button colour
-                  playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(Pot))
-                  #playerArray[playerTurn].play_Selected_Cards(Pot)
+                  #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(Pot))
+                  playerArray[playerTurn].play_Selected_Cards(Pot)
                   playerArray[playerTurn].sort_Cards()
                   playerArray[playerTurn].set_turn_false()
                   playerTurn = (playerTurn + 1) % len(playerArray)
@@ -308,10 +316,11 @@ while True:
       for j in range(len(playerArray[i].handArray)):
           if playerArray[i].turn == True:
             screen.blit(playerArray[i].handArray[j].cardFace, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
-            screen.blit(playerArray[i].text, (playerArray[i].text_xpos, playerArray[i].text_ypos))
+            screen.blit(playerArray[i].name, (playerArray[i].text_xpos, playerArray[i].text_ypos))
+            screen.blit(playerArray[i].message, (playerArray[i].text_xpos, playerArray[i].text_ypos - 50))
           else:
             screen.blit(playerArray[i].handArray[j].cardBack, (playerArray[i].handArray[j].xpos, playerArray[i].handArray[j].ypos))
-            screen.blit(playerArray[i].text, (playerArray[i].text_xpos, playerArray[i].text_ypos))
+            screen.blit(playerArray[i].name, (playerArray[i].text_xpos, playerArray[i].text_ypos))
 
 
     # Set max game framerate
