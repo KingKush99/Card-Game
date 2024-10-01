@@ -34,7 +34,6 @@ class Card:
     self.selected = False
 
 
-
 class cardPile:
   def __init__(self, xpos, ypos, cardSep, cardArray):
     self.cardArray = cardArray
@@ -115,38 +114,44 @@ class Player:
     sortGap = math.floor(len(self.handArray)/2)
     unSorted = True
     swaps = False
-    while unSorted == True:
-        for i in range(len(self.handArray)):
-            if (i == len(self.handArray) - 1) and (sortGap == 1) and (swaps == False): # If it's gone through one by one and made no swaps, then it's fully sorted
-                unSorted = False  
-            if i + sortGap < len(self.handArray):   
-                if self.handArray[i].value < self.handArray[i + sortGap].value:     # If left card greater than right card, then swap them
-                    self.handArray[i], self.handArray[i + sortGap] = self.handArray[i + sortGap], self.handArray[i]
-                    swaps = True
-            else :  # Once we're out of range of the player's hand, lower the comparison gap by one (minimum gap of 1)
-                sortGap = max(sortGap - 1, 1)
-                swaps = False
-                break
+    if len(self.handArray) > 0:
+        while unSorted == True:
+            for i in range(len(self.handArray)):
+                if (i == len(self.handArray) - 1) and (sortGap == 1) and (swaps == False): # If it's gone through one by one and made no swaps, then it's fully sorted
+                    unSorted = False  
+                if i + sortGap < len(self.handArray):   
+                    if self.handArray[i].value < self.handArray[i + sortGap].value:     # If left card greater than right card, then swap them
+                        self.handArray[i], self.handArray[i + sortGap] = self.handArray[i + sortGap], self.handArray[i]
+                        swaps = True
+                else :  # Once we're out of range of the player's hand, lower the comparison gap by one (minimum gap of 1)
+                    sortGap = max(sortGap - 1, 1)
+                    swaps = False
+                    break
         
 
 class Button:
     def __init__(self, text, xpos, ypos, width, height):
-        self.text = game_font.render(text, False, (255,255,255))
+        self.text = game_font.render(text, False, (0,0,0))
         self.xpos = xpos
         self.ypos = ypos
         self.width = width
         self.height = height
-        self.text_xpos = self.xpos + self.width/3
+        self.text_xpos = self.xpos + 5 #self.width/3
         self.text_ypos = self.ypos + self.height/3
-        self.colour = (0,0,0)
+        self.colour = (233,196,73)
         #self.unclickedImage = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
         #self.clickedImage = pygame.transform.scale(pygame.image.load(imageFileName).convert_alpha(), (self.width, self.height))
 
     def click_Button(self):
-        self.colour = (50,25,175)
+        self.colour = (227,181,28)
 
     def unclick_Button(self):
-        self.colour = (0,0,0)
+        self.colour = (233,196,73)
+
+    def do_something(self, funcToCall):
+        funcToCall
+
+
 
 #######################
 ## OBJECT INSTANTIATION
@@ -213,7 +218,7 @@ Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
 #LeftPot = cardPile(SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
 #RightPot = cardPile(SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
-testButton = Button("Test", 3*SCREEN_WIDTH/4, 3*SCREEN_HEIGHT/4, 100, 50)
+playCardsButton = Button("Play Cards", 3*SCREEN_WIDTH/4, 3*SCREEN_HEIGHT/4, 100, 50)
 
 Player1 = Player("Connor", 0, [])
 Player2 = Player("Christian", 1, [])
@@ -269,10 +274,11 @@ while True:
                   playerArray[playerTurn].cardSelected = True
                   break
           # if you click the button
-          if (event.pos[0] >= testButton.xpos) & (event.pos[0] <= testButton.xpos + testButton.width):
-              if (event.pos[1] >= testButton.ypos) & (event.pos[1] <= testButton.ypos + testButton.height):
-                  testButton.click_Button() # Changes nutton colour
-                  playerArray[playerTurn].play_Selected_Cards(Pot)
+          if (event.pos[0] >= playCardsButton.xpos) & (event.pos[0] <= playCardsButton.xpos + playCardsButton.width):
+              if (event.pos[1] >= playCardsButton.ypos) & (event.pos[1] <= playCardsButton.ypos + playCardsButton.height):
+                  playCardsButton.click_Button() # Changes button colour
+                  playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(Pot))
+                  #playerArray[playerTurn].play_Selected_Cards(Pot)
                   playerArray[playerTurn].sort_Cards()
                   playerArray[playerTurn].set_turn_false()
                   playerTurn = (playerTurn + 1) % len(playerArray)
@@ -285,8 +291,9 @@ while True:
     
 
     # Draw Button
-    pygame.draw.rect(screen, testButton.colour, pygame.Rect(testButton.xpos, testButton.ypos, testButton.width, testButton.height))
-    screen.blit(testButton.text, (testButton.text_xpos, testButton.text_ypos))
+    pygame.draw.rect(screen, playCardsButton.colour, pygame.Rect(playCardsButton.xpos, playCardsButton.ypos, playCardsButton.width, playCardsButton.height))
+    screen.blit(playCardsButton.text, (playCardsButton.text_xpos, playCardsButton.text_ypos))
+    playCardsButton.unclick_Button() # reset button colour (after it's been displayed)
 
     # Draw Deck
     for i in range(len(Deck.cardArray)):
@@ -308,6 +315,6 @@ while True:
 
 
     # Set max game framerate
-    gameClock.tick(60)
+    gameClock.tick(15)
 
     pygame.display.flip()
