@@ -95,7 +95,6 @@ class Player:
         self.numberOfSelectedCards = self.numberOfSelectedCards + 1
         self.message = game_font.render("", False, (0,0,0))
     else:
-        #print("Can only select " + str(allowedNumberOfSelectedCards) + " cards")
         text = "*Can only select " + str(allowedNumberOfSelectedCards) + " cards"
         self.message = game_font.render(text, False, (0,0,0))
 
@@ -103,14 +102,20 @@ class Player:
     pileToPlayTo.cardArray.append(self.handArray[cardToPlay])
     self.handArray.pop(cardToPlay)
 
-  def play_Selected_Cards(self, pileToPlayTo):
+  def play_Selected_Cards(self, allowedNumberOfSelectedCards, pileToPlayTo):
       i = 0
-      while i < len(self.handArray):
-        if self.handArray[i].selected == True:
-            self.deselect_Card(i)
-            self.play_Card(i, pileToPlayTo)            
-        else:
-            i = i + 1
+      if self.numberOfSelectedCards < allowedNumberOfSelectedCards:
+        text = "*Must select " + str(allowedNumberOfSelectedCards) + " cards"
+        self.message = game_font.render(text, False, (0,0,0))
+        return False
+      else:
+          while i < len(self.handArray):
+            if self.handArray[i].selected == True:
+                self.deselect_Card(i)
+                self.play_Card(i, pileToPlayTo)            
+            else:
+                i = i + 1
+          return True
 
   def deselect_Card(self, cardIndex):
     if self.handArray[cardIndex].selected == True:
@@ -285,15 +290,15 @@ while True:
           if (event.pos[0] >= playCardsButton.xpos) & (event.pos[0] <= playCardsButton.xpos + playCardsButton.width):
               if (event.pos[1] >= playCardsButton.ypos) & (event.pos[1] <= playCardsButton.ypos + playCardsButton.height):
                   playCardsButton.click_Button() # Changes button colour
-                  #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(Pot))
-                  playerArray[playerTurn].play_Selected_Cards(Pot)
-                  playerArray[playerTurn].sort_Cards()
-                  playerArray[playerTurn].set_turn_false()
-                  playerTurn = (playerTurn + 1) % len(playerArray)
-                  playerArray[playerTurn].set_turn_true()
-                  for i in range(len(playerArray)):
-                    playerArray[i].set_Coordinates(playerTurn, len(playerArray))
-                  Pot.set_Coordinates()
+                  #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot))
+                  if playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot):
+                      playerArray[playerTurn].sort_Cards()
+                      playerArray[playerTurn].set_turn_false()
+                      playerTurn = (playerTurn + 1) % len(playerArray)
+                      playerArray[playerTurn].set_turn_true()
+                      for i in range(len(playerArray)):
+                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                      Pot.set_Coordinates()
 
     
     
