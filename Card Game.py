@@ -66,6 +66,26 @@ class cardPile:
       self.highCard = self.cardArray[0]
       self.lowCard = self.cardArray[len(self.cardArray) - 1]
 
+  def sort_Cards(self):
+    sortGap = max(math.floor(len(self.cardArray)/2), 1)
+    unSorted = True
+    swaps = False
+    if len(self.cardArray) > 0:
+        while unSorted == True:
+            for i in range(len(self.cardArray)):
+                if (i == len(self.cardArray) - 1) and (sortGap == 1) and (swaps == False): # If it's gone through one by one and made no swaps, then it's fully sorted
+                    unSorted = False  
+                if i + sortGap < len(self.cardArray):   
+                    if self.cardArray[i].value < self.cardArray[i + sortGap].value:     # If left card less than right card, then swap them
+                        self.cardArray[i], self.cardArray[i + sortGap] = self.cardArray[i + sortGap], self.cardArray[i]
+                        swaps = True
+                else :  # Once we're out of range of the player's hand, lower the comparison gap by one (minimum gap of 1)
+                    sortGap = max(sortGap - 1, 1)
+                    swaps = False
+                    break
+
+
+
 
 class Player:
   def __init__(self, name, seat, cardArray):
@@ -146,9 +166,6 @@ class Player:
       self.selectedCardIndices.remove(cardIndex)
       self.message = game_font.render("", False, (0,0,0))
 
-  def deselect_All_Cards(self):
-      self.selectedCardIndices.clear()
-
   def sort_Cards(self):
     sortGap = math.floor(len(self.handArray)/2)
     unSorted = True
@@ -159,7 +176,7 @@ class Player:
                 if (i == len(self.handArray) - 1) and (sortGap == 1) and (swaps == False): # If it's gone through one by one and made no swaps, then it's fully sorted
                     unSorted = False  
                 if i + sortGap < len(self.handArray):   
-                    if self.handArray[i].value < self.handArray[i + sortGap].value:     # If left card greater than right card, then swap them
+                    if self.handArray[i].value < self.handArray[i + sortGap].value:     # If left card less than right card, then swap them
                         self.handArray[i], self.handArray[i + sortGap] = self.handArray[i + sortGap], self.handArray[i]
                         swaps = True
                 else :  # Once we're out of range of the player's hand, lower the comparison gap by one (minimum gap of 1)
@@ -317,13 +334,13 @@ while True:
                   playCardsButton.click_Button() # Changes button colour
                   #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot))
                   if playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot):
-                      playerArray[playerTurn].deselect_All_Cards()
                       playerArray[playerTurn].sort_Cards()
                       playerArray[playerTurn].set_turn_false()
                       playerTurn = (playerTurn + 1) % len(playerArray)
                       playerArray[playerTurn].set_turn_true()
                       for i in range(len(playerArray)):
                         playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                      Pot.sort_Cards()
                       Pot.set_Coordinates()
                       Pot.set_Edge_Cards()
 
