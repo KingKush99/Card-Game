@@ -40,6 +40,8 @@ class cardPile:
     self.xpos = xpos
     self.ypos = ypos
     self.cardSep = cardSep
+    self.highCard = 0
+    self.lowCard = 0
 
   def set_Coordinates(self):
     for i in range(len(self.cardArray)):
@@ -60,6 +62,10 @@ class cardPile:
       j = random.randint(0,len(self.cardArray) - 1)
       self.cardArray[i], self.cardArray[j] = self.cardArray[j], self.cardArray[i]
 
+  def set_Edge_Cards(self):
+      self.highCard = self.cardArray[0]
+      self.lowCard = self.cardArray[len(self.cardArray) - 1]
+
 
 class Player:
   def __init__(self, name, seat, cardArray):
@@ -68,7 +74,7 @@ class Player:
     self.handArray = cardArray
     self.runArray = []
     self.points = 0
-    self.numberOfSelectedCards = 0
+    self.selectedCardIndices = []
     self.turn = False
     self.text_xpos = 0
     self.text_ypos = 0
@@ -89,40 +95,59 @@ class Player:
       self.handArray[i].ypos = ((relativeSeat + 1) % 2) * pow(-1, (relativeSeat + 2) % 3) * 200 + SCREEN_HEIGHT/2 -50
       
   def select_Card(self, cardIndex, allowedNumberOfSelectedCards):
-    if self.numberOfSelectedCards < allowedNumberOfSelectedCards:
+    if len(self.selectedCardIndices) < allowedNumberOfSelectedCards:
         self.handArray[cardIndex].selected = True
         self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos - 10
-        self.numberOfSelectedCards = self.numberOfSelectedCards + 1
+        self.selectedCardIndices.append(cardIndex)
         self.message = game_font.render("", False, (0,0,0))
     else:
         text = "*Can only select " + str(allowedNumberOfSelectedCards) + " cards"
         self.message = game_font.render(text, False, (0,0,0))
 
-  def play_Card(self, cardToPlay, pileToPlayTo): # To develop
-    pileToPlayTo.cardArray.append(self.handArray[cardToPlay])
-    self.handArray.pop(cardToPlay)
-
   def play_Selected_Cards(self, allowedNumberOfSelectedCards, pileToPlayTo):
-      i = 0
-      if self.numberOfSelectedCards < allowedNumberOfSelectedCards:
+      if len(self.selectedCardIndices) < allowedNumberOfSelectedCards:
         text = "*Must select " + str(allowedNumberOfSelectedCards) + " cards"
         self.message = game_font.render(text, False, (0,0,0))
         return False
+      elif len(pileToPlayTo.cardArray) == 0:
+        for i in range(len(self.selectedCardIndices)):
+          #self.play_Card(self.selectedCardIndices[i] - i, pileToPlayTo)
+          pileToPlayTo.cardArray.append(self.handArray[self.selectedCardIndices[i] - i])
+          self.handArray.pop(self.selectedCardIndices[i] - i)
+          #self.deselect_Card(self.selectedCardIndices[i])
+        self.selectedCardIndices.clear()
+        return True
       else:
-          while i < len(self.handArray):
-            if self.handArray[i].selected == True:
-                self.deselect_Card(i)
-                self.play_Card(i, pileToPlayTo)            
-            else:
-                i = i + 1
-          return True
+        highCard = pileToPlayTo.highCard
+        lowCard = pileToPlayTo.lowCard
+        if (self.handArray[self.selectedCardIndices[0]].value > highCard.value) & (self.handArray[self.selectedCardIndices[1]].value < lowCard.value):
+            pileToPlayTo.cardArray.append(self.handArray[self.selectedCardIndices[1]])
+            pileToPlayTo.cardArray.append(self.handArray[self.selectedCardIndices[0]])
+            self.handArray.pop(self.selectedCardIndices[1])
+            self.handArray.pop(self.selectedCardIndices[0])
+            self.selectedCardIndices.clear()
+            return True
+        elif (self.handArray[self.selectedCardIndices[0]].value < lowCard.value) & (self.handArray[self.selectedCardIndices[1]].value > highCard.value):
+            pileToPlayTo.cardArray.append(self.handArray[self.selectedCardIndices[0]])
+            pileToPlayTo.cardArray.append(self.handArray[self.selectedCardIndices[1]])
+            self.handArray.pop(self.selectedCardIndices[0])
+            self.handArray.pop(self.selectedCardIndices[1])
+            self.selectedCardIndices.clear()
+            return True
+        else:
+            text = "*Must select one card greater and one lower"
+            self.message = game_font.render(text, False, (0,0,0))
+            return False
 
   def deselect_Card(self, cardIndex):
     if self.handArray[cardIndex].selected == True:
       self.handArray[cardIndex].selected = False
       self.handArray[cardIndex].ypos = self.handArray[cardIndex].ypos + 10
-      self.numberOfSelectedCards = self.numberOfSelectedCards - 1
+      self.selectedCardIndices.remove(cardIndex)
       self.message = game_font.render("", False, (0,0,0))
+
+  def deselect_All_Cards(self):
+      self.selectedCardIndices.clear()
 
   def sort_Cards(self):
     sortGap = math.floor(len(self.handArray)/2)
@@ -275,7 +300,7 @@ while True:
                   playerArray[i].sort_Cards()
                   playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                 break
-          # If you click a card in hand then play the card
+          # If you click a card in hand
           for j in range(len(playerArray[playerTurn].handArray)):
             selectionWidth = (j == len(playerArray[playerTurn].handArray) -1)*(playerArray[playerTurn].handArray[j].width) + (j != len(playerArray[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
             if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
@@ -292,6 +317,7 @@ while True:
                   playCardsButton.click_Button() # Changes button colour
                   #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot))
                   if playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot):
+                      playerArray[playerTurn].deselect_All_Cards()
                       playerArray[playerTurn].sort_Cards()
                       playerArray[playerTurn].set_turn_false()
                       playerTurn = (playerTurn + 1) % len(playerArray)
@@ -299,6 +325,7 @@ while True:
                       for i in range(len(playerArray)):
                         playerArray[i].set_Coordinates(playerTurn, len(playerArray))
                       Pot.set_Coordinates()
+                      Pot.set_Edge_Cards()
 
     
     
