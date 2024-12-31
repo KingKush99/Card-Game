@@ -85,8 +85,6 @@ class cardPile:
                     break
 
 
-
-
 class Player:
   def __init__(self, name, seat, cardArray):
     self.name = game_font.render(name, False, (0,0,0))
@@ -272,9 +270,9 @@ Two_Spades = Card('S', 2, 'TwoSpades.png')
 
 Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades])
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
-#LeftPot = cardPile(SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
-#RightPot = cardPile(SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
+
 playCardsButton = Button("Play Cards", 3*SCREEN_WIDTH/4, 3*SCREEN_HEIGHT/4, 100, 50)
+forfeitTurnButton = Button("Pass", 3*SCREEN_WIDTH/4, 6*SCREEN_HEIGHT/7, 100, 50)
 
 Player1 = Player("Connor", 0, [])
 Player2 = Player("Christian", 1, [])
@@ -284,10 +282,10 @@ Player4 = Player("Dad", 3, [])
 playerArray = [Player1, Player2, Player3, Player4]
 
 
-
-
 # Create a clock object to standardize framerate
 gameClock = pygame.time.Clock()
+
+
 
 #################
 ## Main game loop
@@ -328,7 +326,7 @@ while True:
                 else:
                   playerArray[playerTurn].select_Card(j, 1 + 1*(len(Pot.cardArray) > 0)) # Select the card that was clicked
                   break
-          # if you click the button
+          # if you click the Play Cards button
           if (event.pos[0] >= playCardsButton.xpos) & (event.pos[0] <= playCardsButton.xpos + playCardsButton.width):
               if (event.pos[1] >= playCardsButton.ypos) & (event.pos[1] <= playCardsButton.ypos + playCardsButton.height):
                   playCardsButton.click_Button() # Changes button colour
@@ -343,14 +341,22 @@ while True:
                       Pot.sort_Cards()
                       Pot.set_Coordinates()
                       Pot.set_Edge_Cards()
-
+          # if you click the Forfeit Turn button
+          if (event.pos[0] >= forfeitTurnButton.xpos) & (event.pos[0] <= forfeitTurnButton.xpos + forfeitTurnButton.width):
+              if (event.pos[1] >= forfeitTurnButton.ypos) & (event.pos[1] <= forfeitTurnButton.ypos + forfeitTurnButton.height):
+                  forfeitTurnButton.click_Button() # Changes button colour
     
     
 
-    # Draw Button
+    # Draw Play Cards Button
     pygame.draw.rect(screen, playCardsButton.colour, pygame.Rect(playCardsButton.xpos, playCardsButton.ypos, playCardsButton.width, playCardsButton.height))
     screen.blit(playCardsButton.text, (playCardsButton.text_xpos, playCardsButton.text_ypos))
     playCardsButton.unclick_Button() # reset button colour (after it's been displayed)
+
+    # Draw Forfeit Turn Button
+    pygame.draw.rect(screen, forfeitTurnButton.colour, pygame.Rect(forfeitTurnButton.xpos, forfeitTurnButton.ypos, forfeitTurnButton.width, forfeitTurnButton.height))
+    screen.blit(forfeitTurnButton.text, (forfeitTurnButton.text_xpos, forfeitTurnButton.text_ypos))
+    forfeitTurnButton.unclick_Button() # reset button colour (after it's been displayed)
 
     # Draw Deck
     for i in range(len(Deck.cardArray)):
