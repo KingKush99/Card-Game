@@ -345,6 +345,13 @@ while True:
           if (event.pos[0] >= forfeitTurnButton.xpos) & (event.pos[0] <= forfeitTurnButton.xpos + forfeitTurnButton.width):
               if (event.pos[1] >= forfeitTurnButton.ypos) & (event.pos[1] <= forfeitTurnButton.ypos + forfeitTurnButton.height):
                   forfeitTurnButton.click_Button() # Changes button colour
+                  playerArray[playerTurn].sort_Cards()
+                  playerArray[playerTurn].set_turn_false()
+                  playerTurn = (playerTurn + 1) % len(playerArray)
+                  playerArray[playerTurn].set_turn_true()
+                  for i in range(len(playerArray)):
+                    playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+
     
     
 
