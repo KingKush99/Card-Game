@@ -42,17 +42,18 @@ class cardPile:
     self.cardSep = cardSep
     self.highCard = 0
     self.lowCard = 0
+    self.lastPlayerToPlay = 0
 
   def set_Coordinates(self):
     for i in range(len(self.cardArray)):
       self.cardArray[i].xpos = self.xpos + self.cardSep * i
       self.cardArray[i].ypos = self.ypos
 
-  def deal_Cards(self, numCards, playerArray):
+  def deal_Cards(self, numCards, playersInGame):
     for i in range(numCards):
-      for j in range(len(playerArray)):
+      for j in range(len(playersInGame)):
         if len(Deck.cardArray) > 0:
-          playerArray[j].handArray.append(Deck.cardArray[len(Deck.cardArray) - 1]) # Deal top card
+          playersInGame[j].handArray.append(Deck.cardArray[len(Deck.cardArray) - 1]) # Deal top card
           Deck.cardArray.pop(len(Deck.cardArray) - 1)
         else:
           break
@@ -270,6 +271,7 @@ Two_Spades = Card('S', 2, 'TwoSpades.png')
 
 Deck = cardPile(0, 0, 0.5, [Ace_Hearts,King_Hearts,Queen_Hearts,Jack_Hearts,Ten_Hearts,Nine_Hearts,Eight_Hearts,Seven_Hearts,Six_Hearts,Five_Hearts,Four_Hearts,Three_Hearts,Two_Hearts,Ace_Clubs,King_Clubs,Queen_Clubs,Jack_Clubs,Ten_Clubs,Nine_Clubs,Eight_Clubs,Seven_Clubs,Six_Clubs,Five_Clubs,Four_Clubs,Three_Clubs,Two_Clubs,Ace_Diamonds,King_Diamonds,Queen_Diamonds,Jack_Diamonds,Ten_Diamonds,Nine_Diamonds,Eight_Diamonds,Seven_Diamonds,Six_Diamonds,Five_Diamonds,Four_Diamonds,Three_Diamonds,Two_Diamonds,Ace_Spades,King_Spades,Queen_Spades,Jack_Spades,Ten_Spades,Nine_Spades,Eight_Spades,Seven_Spades,Six_Spades,Five_Spades,Four_Spades,Three_Spades,Two_Spades])
 Pot = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 50, CARD_SEPARATION, [])
+DiscardPile  = cardPile(SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 100, CARD_SEPARATION, [])
 
 playCardsButton = Button("Play Cards", 3*SCREEN_WIDTH/4, 3*SCREEN_HEIGHT/4, 100, 50)
 forfeitTurnButton = Button("Pass", 3*SCREEN_WIDTH/4, 6*SCREEN_HEIGHT/7, 100, 50)
@@ -280,6 +282,7 @@ Player3 = Player("Mom", 2, [])
 Player4 = Player("Dad", 3, [])
 
 playerArray = [Player1, Player2, Player3, Player4]
+playersInGame = [Player1, Player2, Player3, Player4]
 
 
 # Create a clock object to standardize framerate
@@ -293,7 +296,7 @@ gameClock = pygame.time.Clock()
 Deck.Shuffle()
 Deck.set_Coordinates()
 playerTurn = 0
-playerArray[0].set_turn_true() # It's the first player's turn
+playersInGame[0].set_turn_true() # It's the first player's turn
 while True:
     screen.fill((79, 156, 78))
 
@@ -308,36 +311,37 @@ while True:
           if len(Deck.cardArray) > 0:
             if (event.pos[0] >= Deck.cardArray[len(Deck.cardArray) - 1].xpos) & (event.pos[0] <= Deck.cardArray[len(Deck.cardArray) - 1].xpos + Deck.cardArray[len(Deck.cardArray) - 1].width):
               if (event.pos[1] >= Deck.cardArray[len(Deck.cardArray) - 1].ypos) & (event.pos[1] <= Deck.cardArray[len(Deck.cardArray) - 1].ypos + Deck.cardArray[len(Deck.cardArray) - 1].height):
-                Deck.deal_Cards(CARDS_PER_PLAYER, playerArray)
+                Deck.deal_Cards(CARDS_PER_PLAYER, playersInGame)
                 Deck.set_Coordinates()
                 Pot.set_Coordinates()
-                for i in range(len(playerArray)):
-                  playerArray[i].sort_Cards()
-                  playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                for i in range(len(playersInGame)):
+                  playersInGame[i].sort_Cards()
+                  playersInGame[i].set_Coordinates(playerTurn, len(playersInGame))
                 break
           # If you click a card in hand
-          for j in range(len(playerArray[playerTurn].handArray)):
-            selectionWidth = (j == len(playerArray[playerTurn].handArray) -1)*(playerArray[playerTurn].handArray[j].width) + (j != len(playerArray[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
-            if (event.pos[0] >= playerArray[playerTurn].handArray[j].xpos) & (event.pos[0] <= playerArray[playerTurn].handArray[j].xpos + selectionWidth):
-              if (event.pos[1] >= playerArray[playerTurn].handArray[j].ypos) & (event.pos[1] <= playerArray[playerTurn].handArray[j].ypos + playerArray[playerTurn].handArray[j].height):
-                if playerArray[playerTurn].handArray[j].selected == True:
-                  playerArray[playerTurn].deselect_Card(j)  # Deselect card if it was already selected
+          for j in range(len(playersInGame[playerTurn].handArray)):
+            selectionWidth = (j == len(playersInGame[playerTurn].handArray) -1)*(playersInGame[playerTurn].handArray[j].width) + (j != len(playersInGame[playerTurn].handArray) -1)*(CARD_SEPARATION) # if it's the last card in the hand then the selection area is larger
+            if (event.pos[0] >= playersInGame[playerTurn].handArray[j].xpos) & (event.pos[0] <= playersInGame[playerTurn].handArray[j].xpos + selectionWidth):
+              if (event.pos[1] >= playersInGame[playerTurn].handArray[j].ypos) & (event.pos[1] <= playersInGame[playerTurn].handArray[j].ypos + playersInGame[playerTurn].handArray[j].height):
+                if playersInGame[playerTurn].handArray[j].selected == True:
+                  playersInGame[playerTurn].deselect_Card(j)  # Deselect card if it was already selected
                   break
                 else:
-                  playerArray[playerTurn].select_Card(j, 1 + 1*(len(Pot.cardArray) > 0)) # Select the card that was clicked
+                  playersInGame[playerTurn].select_Card(j, 1 + 1*(len(Pot.cardArray) > 0)) # Select the card that was clicked
                   break
           # if you click the Play Cards button
           if (event.pos[0] >= playCardsButton.xpos) & (event.pos[0] <= playCardsButton.xpos + playCardsButton.width):
               if (event.pos[1] >= playCardsButton.ypos) & (event.pos[1] <= playCardsButton.ypos + playCardsButton.height):
                   playCardsButton.click_Button() # Changes button colour
-                  #playCardsButton.do_something(playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot))
-                  if playerArray[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot):
-                      playerArray[playerTurn].sort_Cards()
-                      playerArray[playerTurn].set_turn_false()
-                      playerTurn = (playerTurn + 1) % len(playerArray)
-                      playerArray[playerTurn].set_turn_true()
+                  #playCardsButton.do_something(playersInGame[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot))
+                  if playersInGame[playerTurn].play_Selected_Cards(1 + 1*(len(Pot.cardArray) > 0), Pot):
+                      Pot.lastPlayerToPlay = playersInGame[playerTurn].seat
+                      playerArray[playersInGame[playerTurn].seat].sort_Cards()
+                      playerArray[playersInGame[playerTurn].seat].set_turn_false()
+                      playerTurn = (playerTurn + 1) % len(playersInGame)
+                      playerArray[playersInGame[playerTurn].seat].set_turn_true()
                       for i in range(len(playerArray)):
-                        playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                        playerArray[i].set_Coordinates(playersInGame[playerTurn].seat, len(playerArray))
                       Pot.sort_Cards()
                       Pot.set_Coordinates()
                       Pot.set_Edge_Cards()
@@ -345,13 +349,25 @@ while True:
           if (event.pos[0] >= forfeitTurnButton.xpos) & (event.pos[0] <= forfeitTurnButton.xpos + forfeitTurnButton.width):
               if (event.pos[1] >= forfeitTurnButton.ypos) & (event.pos[1] <= forfeitTurnButton.ypos + forfeitTurnButton.height):
                   forfeitTurnButton.click_Button() # Changes button colour
-                  playerArray[playerTurn].sort_Cards()
-                  playerArray[playerTurn].set_turn_false()
-                  playerTurn = (playerTurn + 1) % len(playerArray)
-                  playerArray[playerTurn].set_turn_true()
-                  for i in range(len(playerArray)):
-                    playerArray[i].set_Coordinates(playerTurn, len(playerArray))
+                  playerArray[playersInGame[playerTurn].seat].sort_Cards()
+                  playerArray[playersInGame[playerTurn].seat].set_turn_false()
+                  playersInGame.pop(playerTurn) # figure out how to pop the correct player
+                  playerTurn = playerTurn % len(playersInGame)
+                  playerArray[playersInGame[playerTurn].seat].set_turn_true()
+             
+                  # if everyone passed except one player
+                  if len(playersInGame) == 1:
+                      for crd in Pot.cardArray:
+                          playersInGame[playerTurn].handArray.append(crd)
+                      Pot.cardArray.clear()
+                      playersInGame[playerTurn].sort_Cards()
+                      playersInGame = playerArray
+                      playerTurn = playersInGame[playerTurn].seat
 
+                  
+                  # reset card coordinates
+                  for i in range(len(playerArray)):
+                    playerArray[i].set_Coordinates(playersInGame[playerTurn].seat, len(playerArray))
     
     
 
@@ -372,6 +388,10 @@ while True:
     # Draw Pot
     for i in range(len(Pot.cardArray)):
       screen.blit(Pot.cardArray[i].cardFace, (Pot.cardArray[i].xpos, Pot.cardArray[i].ypos))
+
+    # Draw Discard Pile
+    for i in range(len(DiscardPile.cardArray)):
+      screen.blit(DiscardPile.cardArray[i].cardFace, (DiscardPile.cardArray[i].xpos, DiscardPile.cardArray[i].ypos))
 
     # Draw Player Hands
     for i in range(len(playerArray)):
